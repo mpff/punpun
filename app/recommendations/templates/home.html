@@ -5,7 +5,13 @@
   <body>
     <h1>punpun.me</h1>
     <h2>a simple anime recommender system</h2>
-    <input id="id_enter_username" placeholder="Enter your MyAnimeList username" />
+    <form method="POST">
+      <input name="username" id="id_enter_username" placeholder="Enter your MyAnimeList username" />
+      {% csrf_token %}
+    </form>
+    <p id="id_welcome_msg"> Welcome {{ current_username }}! Here are 100 anime recommendations.</p>
     <table id="id_recs_table">
+        <tr><td>{{ current_username }}</td></tr>
+    </table>
   </body>
 </html>

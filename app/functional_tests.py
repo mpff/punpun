@@ -39,11 +39,16 @@ class NewVisitorTest(unittest.TestCase):
         inputbox.send_keys(Keys.ENTER)
         time.sleep(1)
 
+        # A welcome message is displayed.
+        welcome_msg = self.browser.find_element_by_id('id_welcome_msg').text
+        self.assertIn('Manuel', welcome_msg)
+
+        # A list of one hundred recommendations is displayed. 
         table = self.browser.find_element_by_id('id_recs_table')
         rows = table.find_elements_by_tag_name('tr')
         self.assertTrue(
             any(row.text == 'Revolutionary Girl Utena' for row in rows),
-            "Recommendation did not appear in table"
+            f"Recommendations did not appear in table. Contents were:\n{table.text}"
         )
 
         # There is still a text box inviting her to add another item. She

@@ -14,12 +14,36 @@ class NewVisitorTest(unittest.TestCase):
         # to check out its homepage
         self.browser.get('http://localhost:8000')
 
-        # She notices the page title and header mention to-do lists
+        # She notices the page title and header mention punpun 
         self.assertIn('punpun.me', self.browser.title)
+        header_text = self.browser.find_element_by_tag_name('h1').text
+        self.assertIn('punpun.me', header_text)
+        subheader_text = self.browser.find_element_by_tag_name('h2').text
+        self.assertIn('a simple anime recommender system', subheader_text)
+
+        # She is invited to enter her mal username straight away
+        inputbox = self.browser.find_element_by_id('id_enter_username')
+        self.assertEqual(
+            inputbox.get_attribute('placeholder'),
+            'Enter your MyAnimeList username'
+        )
+
+        # She enters 'Manuel' right away
+        inputbox.send_keys('Manuel')
+
+        # When she hits enter, the page updates 
+        inputbox.send_keys(Keys.ENTER)
+        time.sleep(1)
+
+        table = self.browser.find_element_by_id('id_recs_table')
+        rows = table.find_elements_by_tag_name('tr')
+        self.assertTrue(
+            any(row.text == 'Revolutionary Girl Utena' for row in rows)
+        )
+
+        # There is still a text box inviting her to add another item. She
         self.fail('Finish the test!')
 
-        # She is invited to enter a to-do item straight away
-        # ...
 
 if __name__ == '__main__':
     unittest.main()

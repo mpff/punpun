@@ -55,7 +55,7 @@ def apicall():
         prediction = pandas.DataFrame(prediction)
         prediction.columns = ['score']
         prediction = prediction.join(meta)
-        prediction = prediction.sort_values(by='score',ascending=False)
+        prediction = prediction.sort_values(by='score',ascending=False).head(5)
 
         response = jsonify(predictions=prediction.to_json(orient='records'))
         response.status_code=200

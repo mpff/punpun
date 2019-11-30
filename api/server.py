@@ -19,7 +19,7 @@ def apicall():
     """ API Call  """
 
     try:
-        user = request.args.get('user')
+        user = request.args.get('username')
     except Exception as e:
         raise e
     
@@ -55,7 +55,7 @@ def apicall():
         prediction = pandas.DataFrame(prediction)
         prediction.columns = ['score']
         prediction = prediction.join(meta)
-        prediction = prediction.sort_values(by='score',ascending=False).head(100)
+        prediction = prediction.sort_values(by='score',ascending=False)
 
         response = jsonify(predictions=prediction.to_json(orient='records'))
         response.status_code=200

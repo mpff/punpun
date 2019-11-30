@@ -46,13 +46,15 @@ class NewVisitorTest(unittest.TestCase):
         # A list of one hundred recommendations is displayed. 
         table = self.browser.find_element_by_id('id_recs_table')
         rows = table.find_elements_by_tag_name('tr')
+        self.assertEqual(len(rows), 100)
+
+        # The first recommendation is Revolutionary Girl Utena.
         self.assertTrue(
             any(row.text == 'Revolutionary Girl Utena' for row in rows),
             f"Recommendations did not appear in table. Contents were:\n{table.text}"
         )
 
-        # There is still a text box inviting her to add another item. She
-        self.fail('Finish the test!')
+        # Satisfied he goes back to sleep.
 
 
 if __name__ == '__main__':

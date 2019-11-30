@@ -5,6 +5,13 @@ services:
     image: postgres:11.5-alpine
     volumes:
       - postgres_data:/var/lib/postgresql/data/
+  api:
+    build: ./api/
+    command: gunicorn --bind 0.0.0.0:5000 server:app
+    volumes:
+      - ./api/:/punpun.me/api/
+    ports:
+      - 5000:5000
   web:
     build: ./app/
     command: python manage.py runserver 0.0.0.0:8000
@@ -14,6 +21,7 @@ services:
       - 8000:8000
     depends_on:
       - db
+      - api
 
 volumes:
   postgres_data:

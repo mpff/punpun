@@ -6,6 +6,7 @@ Filename: server.py
 import os
 import pickle
 import pandas
+import numpy
 
 from animerec import utils
 from flask import Flask, jsonify, request
@@ -55,9 +56,12 @@ def apicall():
         prediction = pandas.DataFrame(prediction)
         prediction.columns = ['score']
         prediction = prediction.join(meta)
-        prediction = prediction.sort_values(by='score',ascending=False).head(5)
-
-        response = jsonify(predictions=prediction.to_json(orient='records'))
+        prediction = prediction.sort_values(by='score',ascending=False).head(100)
+        prediction = prediction.replace(numpy.NaN, '')
+        prediction['anime_id'] = prediction.index
+        response = jsonify(
+            predictions=prediction.to_json(orient='records')
+        )
         response.status_code=200
 
         return(response)

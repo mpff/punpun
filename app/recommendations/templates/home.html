@@ -9,10 +9,20 @@
       <input name="username" id="id_enter_username" placeholder="Enter your MyAnimeList username" />
       {% csrf_token %}
     </form>
-    <p id="id_welcome_msg"> Welcome {{ new_username }}! Here are 100 anime recommendations.</p>
+    {% if new_username %}
+    <p id="id_welcome_msg">
+      Welcome {{ new_username }}! Here are 100 anime recommendations.
+    </p>
+    {% endif %}
     <table id="id_recs_table">
       {% for rec in recommendations %}
-        <tr><td>{{ rec.predicted_score }}</td><td> {{ rec.anime.title }}</td></tr>
+        <tr>
+          <td>{{ rec.predicted_score }}</td>
+          <td>{{ rec.anime.title }}</td>
+          <td>{{ rec.anime.anime_type }}</td>
+          <td>{{ rec.anime.premiered }}<td>
+          <td>{{ rec.anime.genres }}<td>
+        </tr>
       {% endfor %}
     </table>
   </body>

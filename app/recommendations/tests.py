@@ -52,6 +52,15 @@ class HomePageTest(TestCase):
         self.assertIn('anime2', response.content.decode())
 
 
+    def test_can_save_duplicate_POST_request(self):
+        response = self.client.post('/', data={'username': 'Testuser'})
+        self.assertEqual(User.objects.count(), 1)
+        response = self.client.post('/', data={'username': 'Testuser'})
+        self.assertEqual(User.objects.count(), 1)
+
+
+
+
 
 class ApiTest(TestCase):
 

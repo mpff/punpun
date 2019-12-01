@@ -4,11 +4,13 @@ import socket
 from django.test import LiveServerTestCase
 from django.test import tag, override_settings
 from django.conf import settings
+from django.core.management import call_command
 
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.common.exceptions import NoSuchElementException
+
 
 
 MAX_WAIT = 20
@@ -31,6 +33,7 @@ class SeleniumLiveServerTestCase(LiveServerTestCase):
             command_executor='http://selenium:4444/wd/hub',
             desired_capabilities=DesiredCapabilities.FIREFOX
         )
+        call_command('migrate_anime_metadata')
 
     @classmethod
     def tearDownClass(cls):

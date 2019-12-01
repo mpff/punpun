@@ -28,12 +28,12 @@ def home_page(request):
 
         # Format JSON to list.
         # TODO: Clean up json response of API.
-        predictions = response.json()
-        predictions = predictions['predictions']
-        predictions = json.loads(predictions)
+        prediction = response.json()
+        prediction = prediction['predictions']
+        prediction = json.loads(prediction)
 
         # Create object for each recommendation.
-        for p in predictions:
+        for p in prediction:
             anime = Anime.objects.get(anime_id=p['anime_id'])
             recommendation = get_if_exists(Recommendation, user = user, anime = anime)
             if recommendation is None:

@@ -4,8 +4,12 @@ from django.http import HttpRequest
 
 from recommendations.models import Anime, User, Recommendation
 from recommendations.views import home_page
+from recommendations.services import get_prediction
+
+from unittest.mock import Mock, patch
 
 import requests
+import json
 
 
 class HomePageTest(TestCase):
@@ -22,37 +26,71 @@ class HomePageTest(TestCase):
 
     def test_only_saves_items_when_necessary(self):
         self.client.get('/')
+        self.assertEqual(Recommendation.objects.count(), 0)
+        self.assertEqual(User.objects.count(), 0)
         self.assertEqual(Anime.objects.count(), 0)
 
 
-    def test_can_save_a_POST_request(self):
+    @patch('recommendations.views.get_prediction')
+    def test_can_save_a_POST_request(self, mock_get_prediction):
+        anime = Anime.objects.create(anime_id=0, title="TestAnime")
+
+        mock_json = {
+            "predictions": r'[{"score": 8.00, "title": "TestAnime", "type": "", "premiered": "", "genre": "", "anime_id": 0}]'
+        }
+        mock_get_prediction().json.return_value = mock_json
+        
         response = self.client.post('/', data={'username': 'Testuser'})
+
+        self.assertTrue(mock_get_prediction.called)
         self.assertEqual(User.objects.count(), 1)
         new_user = User.objects.first()
         self.assertEqual(new_user.name, 'Testuser')
 
 
-    def test_redirects_after_post(self):
+    @patch('recommendations.views.get_prediction')
+    def test_redirects_after_post(self, mock_get_prediction):
+        anime = Anime.objects.create(anime_id=0, title="TestAnime")
+
+        mock_json = {
+            "predictions": r'[{"score": 8.00, "title": "TestAnime", "type": "", "premiered": "", "genre": "", "anime_id": 0}]'
+        }
+        mock_get_prediction().json.return_value = mock_json
+
         response = self.client.post('/', data={'username': 'Testuser'})
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response['location'], '/')
 
 
-    def test_displays_all_recommendations(self):
+    @patch('recommendations.views.get_prediction')
+    def test_displays_all_recommendations(self, mock_get_prediction):
         user = User.objects.create(name="Testuser")
-        anime1 = Anime.objects.create(anime_id=0,title="anime1")
-        anime2 = Anime.objects.create(anime_id=1,title="anime2")
+        anime = Anime.objects.create(anime_id=0, title="TestAnime")
+        anime1 = Anime.objects.create(anime_id=1,title="anime1")
+        anime2 = Anime.objects.create(anime_id=2,title="anime2")
+
+        mock_json = {
+            "predictions": r'[{"score": 8.00, "title": "TestAnime", "type": "", "premiered": "", "genre": "", "anime_id": 0}]'
+        }
+        mock_get_prediction().json.return_value = mock_json
 
         Recommendation.objects.create(user=user, anime=anime1, predicted_score=1.23)
         Recommendation.objects.create(user=user, anime=anime2, predicted_score=4.56)
 
-        response = self.client.get('/')
+        response = self.client.post('/', data={'username': 'Testuser'})
         
         self.assertIn('anime1', response.content.decode())
         self.assertIn('anime2', response.content.decode())
 
 
-    def test_can_save_duplicate_POST_request(self):
+    @patch('recommendations.views.get_prediction')
+    def test_can_save_duplicate_POST_request(self, mock_get_prediction):
+        anime = Anime.objects.create(anime_id=0, title="TestAnime")
+        mock_json = {
+            "predictions": r'[{"score": 8.00, "title": "TestAnime", "type": "", "premiered": "", "genre": "", "anime_id": 0}]'
+        }
+        mock_get_prediction().json.return_value = mock_json
+
         response = self.client.post('/', data={'username': 'Testuser'})
         self.assertEqual(User.objects.count(), 1)
         response = self.client.post('/', data={'username': 'Testuser'})
@@ -60,16 +98,36 @@ class HomePageTest(TestCase):
 
 
 
+class ServiceTest(TestCase):
+
+    @patch('recommendations.services.requests.post')
+    def test_can_access_api(self, mock_post):
+        mock_post.return_value.ok = True
+        response = get_prediction('Manuel')
+        self.assertIsNotNone(response.ok)
 
 
-class ApiTest(TestCase):
+    @patch('recommendations.services.requests.post')
+    def test_api_returns_prediction_as_json_when_response_is_ok(self, mock_post):
+        json_response = {
+            "predictions": '[\{"score": 9.878677508, "title": "Shoujo Kakumei Utena", "type": "TV", "premiered": "Spring 1997", "genre": "Mystery, Comedy, Psychological, Drama, Fantasy, Shoujo", "anime_id": 440\}]'
+        }
+        
+        mock_post.return_value = Mock(ok=True)
+        mock_post.return_value.json.return_value = json_response
 
-    def test_can_access_REST_api(self):
-        new_username = 'Manuel'
-        response = requests.post(
-            f'http://192.168.0.3:5000/predict?username={new_username}'
-        )
-        self.assertTrue(response.ok)
+        response = get_prediction('Testuser')
+
+        self.assertEqual(response.json(), json_response)
+
+
+    @patch('recommendations.services.requests.post')
+    def test_api_returns_none_when_response_is_not_ok(self, mock_post):
+        mock_post.return_value.ok = False
+        response = get_prediction('Testuser')
+        self.assertIsNone(response)
+
+
 
 
 class ModelTest(TestCase):

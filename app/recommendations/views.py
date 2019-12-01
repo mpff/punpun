@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from recommendations.models import Anime, User, Recommendation
+from recommendations.services import get_prediction
 
 import requests
 import json
@@ -22,27 +23,19 @@ def home_page(request):
         if user is None:
             user = User.objects.create(name = new_username)
 
-        response = requests.post(
-            f'http://192.168.0.3:5000/predict?username={new_username}'
-        )
-        
+        # Get prediction from API
+        response = get_prediction(new_username)
+
+        # Format JSON to list.
+        # TODO: Clean up json response of API.
         predictions = response.json()
         predictions = predictions['predictions']
         predictions = json.loads(predictions)
 
+        # Create object for each recommendation.
         for p in predictions:
-            anime = get_if_exists(Anime, anime_id=p['anime_id'])
-            if anime is None:
-                anime = Anime.objects.create(anime_id = p['anime_id'])
-            anime.title = p['title']
-            anime.anime_type = p['type']
-            anime.premiered = p['premiered']
-            anime.genres = p['genre']
-            anime.save()
-
-            recommendation = get_if_exists(
-                Recommendation, user = user, anime = anime
-            )
+            anime = Anime.objects.get(anime_id=p['anime_id'])
+            recommendation = get_if_exists(Recommendation, user = user, anime = anime)
             if recommendation is None:
                 Recommendation.objects.create(
                     user=user,
@@ -53,15 +46,15 @@ def home_page(request):
                 recommendation.score = p['score']  # Update score.
                 recommendation.save()
 
+        # Filter for current user.
         # ToDo: Multiple SQL requests here! 
-        recommendations = Recommendation.objects.filter(
-            user__name = new_username
-        )
+        recommendations = Recommendation.objects.filter(user__name = new_username)
         recommendations = recommendations.order_by('-predicted_score')
 
         return render(request, 'home.html', {
             'new_username': new_username,
-            'recommendations': recommendations})
+            'recommendations': recommendations
+        })
 
-    else:
-        return render(request, 'home.html')
+    
+    return render(request, 'home.html')

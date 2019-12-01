@@ -3,11 +3,12 @@ import socket
 
 from django.test import LiveServerTestCase
 from django.test import tag, override_settings
+from django.conf import settings
 
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
-from selenium.common.exceptions import WebDriverException
+from selenium.common.exceptions import NoSuchElementException
 
 
 MAX_WAIT = 20
@@ -30,7 +31,6 @@ class SeleniumLiveServerTestCase(LiveServerTestCase):
             command_executor='http://selenium:4444/wd/hub',
             desired_capabilities=DesiredCapabilities.FIREFOX
         )
-        cls.selenium.implicitly_wait(5)
 
     @classmethod
     def tearDownClass(cls):
@@ -48,7 +48,7 @@ class NewVisitorTest(SeleniumLiveServerTestCase):
                 welcome_msg = self.selenium.find_element_by_id('id_welcome_msg').text
                 self.assertIn(username, welcome_msg)
                 return
-            except (AssertionError, WebDriverException) as e:
+            except (AssertionError, NoSuchElementException) as e:
                 if time.time() - t_start > MAX_WAIT:
                     raise e
                 time.sleep(0.5)

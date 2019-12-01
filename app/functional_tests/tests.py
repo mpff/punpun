@@ -61,21 +61,15 @@ class NewVisitorTest(SeleniumLiveServerTestCase):
 
         # When she hits enter, the page updates 
         inputbox.send_keys(Keys.ENTER)
-        time.sleep(1)
+        time.sleep(5)
 
         # A welcome message is displayed.
-        welcome_msg = self.browser.find_element_by_id('id_welcome_msg').text
+        welcome_msg = self.selenium.find_element_by_id('id_welcome_msg').text
         self.assertIn('Manuel', welcome_msg)
 
         # A list of one hundred recommendations is displayed. 
-        table = self.browser.find_element_by_id('id_recs_table')
+        table = self.selenium.find_element_by_id('id_recs_table')
         rows = table.find_elements_by_tag_name('tr')
         self.assertEqual(len(rows), 100)
-
-        # The first recommendation is Revolutionary Girl Utena.
-        self.assertTrue(
-            any(row.text == 'Revolutionary Girl Utena' for row in rows),
-            f"Recommendations did not appear in table. Contents were:\n{table.text}"
-        )
 
         # Satisfied he goes back to sleep.

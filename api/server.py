@@ -36,7 +36,7 @@ def apicall():
         p = utils.get_user_anime_list(user)
         x = utils.get_score_vector_from_user_anime_list(p, ids)
 
-        print("Loading pickled model...")
+        print("Loading model...")
         model = None
         with open('./model/model.pickle', 'rb') as f:
             model = pickle.load(f)
@@ -44,25 +44,13 @@ def apicall():
         print("Predicting anime scores...")
         rhat = model.predict(x)
 
-        print("Loading anime metadata...")
-        meta = None
-        with open("./model/meta.pickle", 'rb') as f:
-            meta = pickle.load(f)
-        meta.index = meta['anime_id']
-        meta = meta[ ['title', 'type', 'premiered', 'genre'] ]
-
         print("Merging metadata and prediction...")
-        prediction = utils.prediction_to_dataframe(rhat, p, ids, keep_all=False)
-        prediction = pandas.DataFrame(prediction)
-        prediction.columns = ['score']
-        prediction = prediction.join(meta)
-        prediction = prediction.sort_values(by='score',ascending=False).head(100)
-        prediction = prediction.replace(numpy.NaN, '')
-        prediction['anime_id'] = prediction.index
-        response = jsonify(
-            predictions=prediction.to_json(orient='records')
-        )
+        prediction = [{'anime_id': i, 'score': s} for i,s in zip(ids,rhat)]
+
+        print("Packing json response...")
+        response = jsonify(prediction=prediction)
         response.status_code=200
 
+        print("Serve predictions.")
         return(response)
 

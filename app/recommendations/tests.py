@@ -36,7 +36,7 @@ class HomePageTest(TestCase):
         anime = Anime.objects.create(anime_id=0, title="TestAnime")
 
         mock_json = {
-            "predictions": r'[{"score": 8.00, "title": "TestAnime", "type": "", "premiered": "", "genre": "", "anime_id": 0}]'
+            "prediction": [{"score": 8.00, "anime_id": 0}]
         }
         mock_get_prediction().json.return_value = mock_json
         
@@ -53,7 +53,7 @@ class HomePageTest(TestCase):
         anime = Anime.objects.create(anime_id=0, title="TestAnime")
 
         mock_json = {
-            "predictions": r'[{"score": 8.00, "title": "TestAnime", "type": "", "premiered": "", "genre": "", "anime_id": 0}]'
+            "prediction": [{"score": 8.00, "anime_id": 0}]
         }
         mock_get_prediction().json.return_value = mock_json
 
@@ -70,7 +70,7 @@ class HomePageTest(TestCase):
         anime2 = Anime.objects.create(anime_id=2,title="anime2")
 
         mock_json = {
-            "predictions": r'[{"score": 8.00, "title": "TestAnime", "type": "", "premiered": "", "genre": "", "anime_id": 0}]'
+            "prediction": [{"score": 8.00, "anime_id": 0}]
         }
         mock_get_prediction().json.return_value = mock_json
 
@@ -87,7 +87,7 @@ class HomePageTest(TestCase):
     def test_can_save_duplicate_POST_request(self, mock_get_prediction):
         anime = Anime.objects.create(anime_id=0, title="TestAnime")
         mock_json = {
-            "predictions": r'[{"score": 8.00, "title": "TestAnime", "type": "", "premiered": "", "genre": "", "anime_id": 0}]'
+            "prediction": [{"score": 8.00, "anime_id": 0}]
         }
         mock_get_prediction().json.return_value = mock_json
 
@@ -110,7 +110,7 @@ class ServiceTest(TestCase):
     @patch('recommendations.services.requests.post')
     def test_api_returns_prediction_as_json_when_response_is_ok(self, mock_post):
         json_response = {
-            "predictions": '[\{"score": 9.878677508, "title": "Shoujo Kakumei Utena", "type": "TV", "premiered": "Spring 1997", "genre": "Mystery, Comedy, Psychological, Drama, Fantasy, Shoujo", "anime_id": 440\}]'
+            "prediction": [{"score": 9.878677508, "anime_id": 440}]
         }
         
         mock_post.return_value = Mock(ok=True)

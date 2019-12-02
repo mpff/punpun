@@ -7,9 +7,11 @@ from recommendations.views import home_page
 from recommendations.services import get_prediction
 
 from unittest.mock import Mock, patch
+from unittest import skip
 
 import requests
 import json
+
 
 
 class HomePageTest(TestCase):
@@ -36,7 +38,10 @@ class HomePageTest(TestCase):
         anime = Anime.objects.create(anime_id=0, title="TestAnime")
 
         mock_json = {
-            "prediction": [{"score": 8.00, "anime_id": 0}]
+            "prediction": [{
+                "score": 8.00, 
+                "anime_id": 0
+            }]
         }
         mock_get_prediction().json.return_value = mock_json
         
@@ -53,7 +58,10 @@ class HomePageTest(TestCase):
         anime = Anime.objects.create(anime_id=0, title="TestAnime")
 
         mock_json = {
-            "prediction": [{"score": 8.00, "anime_id": 0}]
+            "prediction": [{
+                "score": 8.00, 
+                "anime_id": 0
+            }]
         }
         mock_get_prediction().json.return_value = mock_json
 
@@ -70,7 +78,10 @@ class HomePageTest(TestCase):
         anime2 = Anime.objects.create(anime_id=2,title="anime2")
 
         mock_json = {
-            "prediction": [{"score": 8.00, "anime_id": 0}]
+            "prediction": [{
+                "score": 8.00, 
+                "anime_id": 0
+            }]
         }
         mock_get_prediction().json.return_value = mock_json
 
@@ -87,7 +98,10 @@ class HomePageTest(TestCase):
     def test_can_save_duplicate_POST_request(self, mock_get_prediction):
         anime = Anime.objects.create(anime_id=0, title="TestAnime")
         mock_json = {
-            "prediction": [{"score": 8.00, "anime_id": 0}]
+            "prediction": [{
+                "score": 8.00, 
+                "anime_id": 0
+            }]
         }
         mock_get_prediction().json.return_value = mock_json
 
@@ -106,11 +120,14 @@ class ServiceTest(TestCase):
         response = get_prediction('Manuel')
         self.assertIsNotNone(response.ok)
 
-
+    
     @patch('recommendations.services.requests.post')
     def test_api_returns_prediction_as_json_when_response_is_ok(self, mock_post):
         json_response = {
-            "prediction": [{"score": 9.878677508, "anime_id": 440}]
+            "prediction": [{
+                "score": 9.878677508,
+                "anime_id": 440
+            }]
         }
         
         mock_post.return_value = Mock(ok=True)
@@ -127,6 +144,33 @@ class ServiceTest(TestCase):
         response = get_prediction('Testuser')
         self.assertIsNone(response)
 
+
+
+class ApiIntegrationTest(TestCase):
+
+    @skip('Skipping tests that hit real API server.')
+    def test_api_and_mocked_api_use_same_data_structure(self):
+        # Hit the actual API
+        actual = get_prediction('Testuser')
+        actual_keys = actual.json().keys()
+        actual_prediction_keys = actual.json()['prediction'].pop().keys()
+
+        # Hit the mocked API
+        with patch('recommendations.services.requests.get') as mock_get:
+            mock_get.return_value.ok = True
+            mock_get.return_value.json.return_value = [{
+                "prediction": [{
+                    'anime_id': 1,
+                    'score': 9.45
+                }]
+            }]
+
+            mocked = get_prediction('Testuser')
+            mocked_keys = mocked.json().keys()
+            mocked_prediction_keys = mocked.json()['prediction'].pop().keys()
+
+        self.assertEqual(actual_keys, mocked_keys)
+        self.assertEqual(actual_prediction_keys, mocked_prediction_keys)
 
 
 

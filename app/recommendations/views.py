@@ -33,7 +33,7 @@ def home_page(request):
 
         # Create object for each recommendation.
         # TODO: Filter this somehow better! This is terrislow.
-        for p in prediction[:100]:
+        for p in prediction:
             anime = Anime.objects.get(anime_id=p['anime_id'])
             recommendation = get_if_exists(Recommendation, user = user, anime = anime)
             if recommendation is None:

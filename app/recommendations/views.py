@@ -31,9 +31,12 @@ def home_page(request):
         prediction = response.json()
         prediction = prediction['prediction']
 
+        # Sort by score
+        prediction = sorted(prediction, key=lambda k: k['score'], reverse=True)
+
         # Create object for each recommendation.
-        # TODO: Filter this somehow better! This is terrislow.
-        for p in prediction:
+        # TODO: Filter this somehow better! 
+        for p in prediction[:100]:
             anime = Anime.objects.get(anime_id=p['anime_id'])
             recommendation = get_if_exists(Recommendation, user = user, anime = anime)
             if recommendation is None:
@@ -49,7 +52,7 @@ def home_page(request):
         # Filter for current user.
         # ToDo: Multiple SQL requests here! 
         recommendations = Recommendation.objects.filter(user__name = new_username)
-        recommendations = recommendations.order_by('-predicted_score')
+        recommendations = recommendations.order_by('-predicted_score')[:100]
 
         return render(request, 'home.html', {
             'new_username': new_username,

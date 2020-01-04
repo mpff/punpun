@@ -7,6 +7,7 @@ import os
 import pickle
 import pandas
 import numpy
+from scipy.sparse import csc_matrix
 
 from animerec import utils
 from flask import Flask, jsonify, request
@@ -15,7 +16,7 @@ from flask import Flask, jsonify, request
 app = Flask(__name__)
 
 
-@app.route('/predict', methods=['POST'])
+@app.route('/predict', methods=['POST','GET'])
 def apicall():
     """ API Call  """
 
@@ -42,13 +43,18 @@ def apicall():
             model = pickle.load(f)
 
         print("Predicting anime scores...")
-        rhat = model.predict(x)
+        x = csc_matrix(numpy.nan_to_num(numpy.array([x])))
+        rhat = model.predict(x)[0,:]
 
         print("Merging metadata and prediction...")
         prediction = [{'anime_id': i, 'score': s} for i,s in zip(ids,rhat)]
+        animelist = [
+            {'anime_id': a['id_ref'], 
+             'status': a['status'], 
+             'score': a['score']} for a in p]
 
         print("Packing json response...")
-        response = jsonify(prediction=prediction)
+        response = jsonify(prediction=prediction, animelist=animelist)
         response.status_code=200
 
         print("Serve predictions.")

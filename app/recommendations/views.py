@@ -28,35 +28,28 @@ def home_page(request):
 
         # Format JSON to list.
         # TODO: Clean up json response of API.
-        prediction = response.json()
-        prediction = prediction['prediction']
+        json = response.json()
+        prediction = json['prediction']
+        animelist = json['animelist']
 
-        # Sort by score
-        prediction = sorted(prediction, key=lambda k: k['score'], reverse=True)
+        # Filter and sort predictions.      
+        scored = [a['anime_id'] for a in animelist if a['score'] == 0]
+        recommendation = [p for p in prediction if p['anime_id'] not in scored]
+        recommendation = sorted(recommendation, key=lambda k: k['score'], reverse=True)[:100]
+
 
         # Create object for each recommendation.
         # TODO: Filter this somehow better! 
-        for p in prediction[:100]:
-            anime = Anime.objects.get(anime_id=p['anime_id'])
-            recommendation = get_if_exists(Recommendation, user = user, anime = anime)
-            if recommendation is None:
-                Recommendation.objects.create(
-                    user=user,
-                    anime=anime,
-                    predicted_score = p['score']
-                )
-            else:
-                recommendation.score = p['score']  # Update score.
-                recommendation.save()
+        for i,r in enumerate(recommendation):
+            anime = Anime.objects.get(anime_id=r['anime_id'])
+            recommendation[i]['anime'] = anime
 
-        # Filter for current user.
-        # ToDo: Multiple SQL requests here! 
-        recommendations = Recommendation.objects.filter(user__name = new_username)
-        recommendations = recommendations.order_by('-predicted_score')[:100]
 
         return render(request, 'home.html', {
             'new_username': new_username,
-            'recommendations': recommendations
+            'animelist': animelist,
+            'prediction': prediction,
+            'recommendation': recommendation
         })
 
     

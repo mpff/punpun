@@ -15,9 +15,9 @@
     </p>
     {% endif %}
     <table id="id_recs_table">
-      {% for rec in recommendations %}
+      {% for rec in recommendation %}
         <tr>
-          <td>{{ rec.predicted_score }}</td>
+          <td>{{ rec.score }}</td>
           <td>{{ rec.anime.title }}</td>
           <td>{{ rec.anime.anime_type }}</td>
           <td>{{ rec.anime.premiered }}<td>

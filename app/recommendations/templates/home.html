@@ -17,7 +17,7 @@
     <table id="id_recs_table">
       {% for rec in recommendation %}
         <tr>
-          <td>{{ rec.score }}</td>
+          <td>{{ rec.score|floatformat:2 }}</td>
           <td>{{ rec.anime.title }}</td>
           <td>{{ rec.anime.anime_type }}</td>
           <td>{{ rec.anime.premiered }}<td>

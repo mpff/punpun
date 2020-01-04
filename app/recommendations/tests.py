@@ -41,6 +41,11 @@ class HomePageTest(TestCase):
             "prediction": [{
                 "score": 8.00, 
                 "anime_id": 0
+            }],
+            "animelist": [{
+                "anime_id": 5,
+                "status": 2,
+                "score": 7
             }]
         }
         mock_get_prediction().json.return_value = mock_json
@@ -61,6 +66,11 @@ class HomePageTest(TestCase):
             "prediction": [{
                 "score": 8.00, 
                 "anime_id": 0
+            }],
+            "animelist": [{
+                "anime_id": 5,
+                "status": 2,
+                "score": 7
             }]
         }
         mock_get_prediction().json.return_value = mock_json
@@ -81,6 +91,11 @@ class HomePageTest(TestCase):
             "prediction": [{
                 "score": 8.00, 
                 "anime_id": 0
+            }],
+            "animelist": [{
+                "anime_id": 5,
+                "status": 2,
+                "score": 7
             }]
         }
         mock_get_prediction().json.return_value = mock_json
@@ -101,6 +116,11 @@ class HomePageTest(TestCase):
             "prediction": [{
                 "score": 8.00, 
                 "anime_id": 0
+            }],
+            "animelist": [{
+                "anime_id": 5,
+                "status": 2,
+                "score": 7
             }]
         }
         mock_get_prediction().json.return_value = mock_json
@@ -148,7 +168,7 @@ class ServiceTest(TestCase):
 
 class ApiIntegrationTest(TestCase):
 
-    @skip('Skipping tests that hit real API server.')
+    #@skip('Skipping tests that hit real API server.')
     def test_api_and_mocked_api_use_same_data_structure(self):
         # Hit the actual API
         actual = get_prediction('Testuser')

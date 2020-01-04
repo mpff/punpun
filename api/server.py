@@ -43,8 +43,7 @@ def apicall():
             model = pickle.load(f)
 
         print("Predicting anime scores...")
-        x = csc_matrix(numpy.nan_to_num(numpy.array([x])))
-        rhat = model.predict(x)[0,:]
+        rhat = model.predict(x)
 
         print("Merging metadata and prediction...")
         prediction = [{'anime_id': i, 'score': s} for i,s in zip(ids,rhat)]

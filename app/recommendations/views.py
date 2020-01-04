@@ -33,7 +33,7 @@ def home_page(request):
         animelist = json['animelist']
 
         # Filter and sort predictions.      
-        scored = [a['anime_id'] for a in animelist if a['score'] == 0]
+        scored = [a['anime_id'] for a in animelist if a['score'] != 0]
         recommendation = [p for p in prediction if p['anime_id'] not in scored]
         recommendation = sorted(recommendation, key=lambda k: k['score'], reverse=True)[:100]
 

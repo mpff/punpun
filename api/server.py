@@ -42,6 +42,8 @@ def apicall():
         with open('./model/model.pickle', 'rb') as f:
             model = pickle.load(f)
 
+        print(f"Using Model: {model}.")
+
         print("Predicting anime scores...")
         x = csc_matrix(numpy.nan_to_num(numpy.array([x])))
         rhat = model.predict(x)[0,:]
